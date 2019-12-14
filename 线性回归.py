@@ -26,7 +26,7 @@ model.fit(x_train, y_train, batch_size=6, epochs=40, initial_epoch=0)
 
 # test the model
 score = model.evaluate(x_train, y_train, batch_size=5)
-test_data = model.predict(np.array([[5]]), batch_size=1)
+test_data = model.predict(np.array([[8]]), batch_size=1)
 
 #但数据测试
 print(test_data)
