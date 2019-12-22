@@ -72,11 +72,14 @@ Y = tf.placeholder("float", shape=[None, num_labels])
 
 # y_model = tf.nn.softmax(tf.matmul(layer_1, W_2) + b_2)
 
+#2层
 #隐层 relu tanh
-h1 = fcn_layer(X, num_features, 9, tf.nn.tanh)
-#全连接输出层 Sigmoid Softmax 
-y_model = fcn_layer(h1, 9, 3, tf.nn.softmax)
+# h1 = fcn_layer(X, num_features, 9, tf.nn.tanh)
+# #全连接输出层 Sigmoid Softmax 
+# y_model = fcn_layer(h1, 9, 3, tf.nn.softmax)
 
+#1层
+y_model = fcn_layer(X, num_features, 3, tf.nn.softmax)
 
 # cost = -tf.reduce_sum(Y * tf.log(y_model))
 cost = -tf.reduce_mean(Y * tf.log(y_model))

@@ -61,12 +61,15 @@ Y = tf.placeholder("float", shape=[None, num_labels])
 
 
 # 全连接层函数
-# layer1_test = tf.matmul(X, W) + b
-layer1 = tf.layers.dense(inputs=X, units=9, activation=tf.nn.tanh, kernel_initializer=tf.random_normal_initializer(
-    mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name=LAYER_1_NAME)
-layer2 = tf.layers.dense(inputs=layer1, units=3, activation=tf.nn.softmax, kernel_initializer=tf.random_normal_initializer(
-    mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name=LAYER_2_NAME)
+# 2层
+# layer1 = tf.layers.dense(inputs=X, units=9, activation=tf.nn.tanh, kernel_initializer=tf.random_normal_initializer(
+#     mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name=LAYER_1_NAME)
+# layer2 = tf.layers.dense(inputs=layer1, units=3, activation=tf.nn.softmax, kernel_initializer=tf.random_normal_initializer(
+#     mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name=LAYER_2_NAME)
 
+#1层
+layer2 = tf.layers.dense(inputs=X, units=3, activation=tf.nn.softmax, kernel_initializer=tf.random_normal_initializer(
+    mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name=LAYER_2_NAME)
 
 # loss1 = tf.reduce_mean((layer1 - X) ** 2)
 
