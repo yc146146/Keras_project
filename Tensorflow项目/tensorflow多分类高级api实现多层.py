@@ -116,16 +116,16 @@ with tf.Session() as sess:
     print("predict", predict.eval(feed_dict={X: [[15.], [40.], [90.], [60]]}))
 
     # 把模型保存成checkpoint
-    saver = tf.train.Saver()
-    save_path = saver.save(sess, './checkpoint/model.ckpt')
-    print("model saved in path: %s" % save_path, flush=True)
-    # 读取刚保存的checkpoint
-    reader = tf.train.NewCheckpointReader(save_path)
-    # weight的名字，是由对应层的名字，加上默认的"kernel"组成的
-    weights = reader.get_tensor(LAYER_1_NAME + '/kernel')
-    bias = reader.get_tensor(LAYER_1_NAME + '/bias')  # bias的名字
-    print("weights",weights)
-    print("bias",bias)
+    # saver = tf.train.Saver()
+    # save_path = saver.save(sess, './checkpoint/model.ckpt')
+    # print("model saved in path: %s" % save_path, flush=True)
+    # # 读取刚保存的checkpoint
+    # reader = tf.train.NewCheckpointReader(save_path)
+    # # weight的名字，是由对应层的名字，加上默认的"kernel"组成的
+    # weights = reader.get_tensor(LAYER_1_NAME + '/kernel')
+    # bias = reader.get_tensor(LAYER_1_NAME + '/bias')  # bias的名字
+    # print("weights",weights)
+    # print("bias",bias)
     # 如果想打印模型中的所有参数名和参数值的话，把下面几行取消注释
     # var_to_shape_map = reader.get_variable_to_shape_map()
     # for key in var_to_shape_map:

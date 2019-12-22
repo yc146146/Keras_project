@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelBinarizer
 
 x_train = np.loadtxt("3data.csv",delimiter="," , usecols=(0) , dtype=float)
 # x_train = x_train.reshape((100, 4))
-print(x_train)
+# print(x_train)
 
 y_train = np.loadtxt("3data.csv",delimiter="," , usecols=(1) , dtype=float)
 
@@ -47,27 +47,27 @@ y_train=lb.fit_transform(y_train)
 
 # print(x_train)
 
-init = K.initializers.glorot_uniform(seed=1)
-
-model = Sequential()
-# model.add(Dense(16, activation="relu", input_dim=1, kernel_initializer=init))
-# model.add(Dense(8, activation="relu", kernel_initializer=init))
-model.add(Dense(4, kernel_initializer=init, input_dim=1))
-model.add(Activation('softmax'))
-
-ada = optimizers.Adam(lr=0.001, epsilon=1e-8)
-model.compile(optimizer=ada, loss='categorical_crossentropy', metrics=['accuracy'])
-
-model.fit(x_train, y_train, batch_size=4096, epochs=10000, shuffle=True)
-
-score = model.evaluate(x_train, y_train, batch_size=4096)
-print('loss:', score[0], '\t\taccuracy:', score[1])
 
 
-#测试结果
-res = model.predict(np.array([[50],[1050],[400050]]))
+# model = Sequential()
+# # model.add(Dense(16, activation="relu", input_dim=1, kernel_initializer=init))
+# # model.add(Dense(8, activation="relu", kernel_initializer=init))
+# model.add(Dense(4, kernel_initializer='random_uniform', bias_initializer='random_uniform', input_dim=1))
+# model.add(Activation('softmax'))
 
-#四舍五入显示结果
-print("res:", np.round(res))
+# ada = optimizers.Adam(lr=0.001, epsilon=1e-8)
+# model.compile(optimizer=ada, loss='categorical_crossentropy', metrics=['accuracy'])
 
-print("res:", res)
+# model.fit(x_train, y_train, batch_size=4096, epochs=1000, shuffle=True)
+
+# score = model.evaluate(x_train, y_train, batch_size=4096)
+# print('loss:', score[0], '\t\taccuracy:', score[1])
+
+
+# #测试结果
+# res = model.predict(np.array([[50],[1050],[400050]]))
+
+# #四舍五入显示结果
+# print("res:", np.round(res))
+
+# print("res:", res)
