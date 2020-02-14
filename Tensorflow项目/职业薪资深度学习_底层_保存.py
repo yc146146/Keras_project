@@ -4,11 +4,14 @@
 使用Softmax进行多类别分类
 '''
 import numpy as np
-import tensorflow.compat.v1 as tf
+# import tensorflow as tf
+# import matplotlib.pyplot as plt
 import pandas as pd
+import os
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
-
-data_list = pd.read_csv("../data/python_new.csv",encoding="gbk")
+data_list = pd.read_csv("../data/python_all_no0.csv",encoding="gbk")
 # print(data_list.head())
 
 data_ck_list = pd.read_csv("../data/python_ck.csv",encoding="gbk")
@@ -99,8 +102,8 @@ x_ck = x_ck.values
 # print(x_ck)
 
 train_size, num_features = x_train.shape
-learning_rate = 0.01
-training_epochs = 100
+learning_rate = 0.005
+training_epochs = 500
 num_labels = y_train.shape[1]
 batch_size = 512
 
@@ -123,8 +126,6 @@ def fcn_layer(
         outputs = activation(XWb)  # 代入参数选择的激活函数
     return outputs  # 返回
 
-tf.disable_v2_behavior()
-
 X = tf.placeholder("float", shape=[None, num_features])
 Y = tf.placeholder("float", shape=[None, num_labels])
 
@@ -141,6 +142,10 @@ Y = tf.placeholder("float", shape=[None, num_labels])
 # b_2 = tf.Variable(tf.zeros([num_labels]))
 
 # y_model = tf.nn.softmax(tf.matmul(layer_1, W_2) + b_2)
+
+
+X = tf.cast(tf.convert_to_tensor(X), tf.float32)
+
 
 #2层
 #隐层 relu tanh
@@ -170,11 +175,29 @@ correct_prediction = tf.equal(tf.argmax(y_model, 1), tf.argmax(Y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
 
+saver = tf.train.Saver()
+
+
+if os.path.exists("./checkpoint/checkpoint"):
+    print("old")
+
+    with tf.Session()as sess3:
+        sess3.run(tf.global_variables_initializer())
+        saver.restore(sess3, "./checkpoint/test.ckpt")
+        print("accuracy", accuracy.eval(feed_dict={X: x_train, Y: y_train}))
+        print("loss:", cost.eval(feed_dict={X: x_train, Y: y_train}))
+
+else:
+
+	print("new")
+	
+
+
 with tf.Session() as sess:
     tf.global_variables_initializer().run()
     # training_epochs * train_size // batch_size
 
-    for step in range(100):
+    for step in range(training_epochs):
 
         offset = (step * batch_size) % train_size
 
@@ -193,5 +216,13 @@ with tf.Session() as sess:
     # print('w', W_val)
     # b_val = sess.run(b)
     # print('b', b_val)
-    print("accuracy", accuracy.eval(feed_dict={X: x_train, Y: y_train}))
-    print("predict", predict.eval(feed_dict={X: x_ck}))
+    print("accuracy:", accuracy.eval(feed_dict={X: x_train, Y: y_train}))
+    print("loss:", cost.eval(feed_dict={X: x_train, Y: y_train}))
+    # print("predict", predict.eval(feed_dict={X: x_ck}))
+    
+    saver.save(sess, "./checkpoint/test.ckpt")
+
+with tf.Session()as sess2:
+	sess2.run(tf.global_variables_initializer())
+	saver.restore(sess2, "./checkpoint/test.ckpt")
+	print("accuracy", accuracy.eval(feed_dict={X: x_train, Y: y_train}))

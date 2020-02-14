@@ -18,10 +18,10 @@ from numpy import float64
 
 model_file = "./cp/model.h5"
 
-data_list = pd.read_csv("../data/python_test.csv",encoding="gbk")
+data_list = pd.read_csv("../data/all_12_info.csv",encoding="gbk")
 # data_list = pd.read_csv("../data/python_new.csv",encoding="gbk")
 # print(data_list.head())
-data_ck_list = pd.read_csv("../data/python_ck_test.csv",encoding="gbk")
+data_ck_list = pd.read_csv("../data/python_ck_info.csv",encoding="gbk")
 
 x_train = data_list.drop(["salary"], axis=1)
 # print(data_list.shape)

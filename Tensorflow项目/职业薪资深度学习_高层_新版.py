@@ -1,13 +1,15 @@
 import pandas as pd
-
-from keras.layers import Dense, Activation, Dropout, SimpleRNN, LSTM, Embedding, Conv1D
-from keras.models import Sequential
-from keras import optimizers
-import keras as K
 import numpy as np
+import tensorflow as tf
+from tensorflow.keras.layers import Dense, Activation, Dropout, SimpleRNN, LSTM, Embedding, Conv1D, Flatten, GlobalMaxPool1D
+from tensorflow.keras.models import Sequential
+from tensorflow.keras import optimizers
+from sklearn.model_selection import train_test_split
 
+model_file = "/ck/test.h5"
 
-data_list = pd.read_csv("../data/python.csv",encoding="gbk")
+data_list = pd.read_csv("../data/python_new.csv",encoding="gbk")
+# data_list = pd.read_csv("../data/python_new.csv",encoding="gbk")
 # print(data_list.head())
 data_ck_list = pd.read_csv("../data/python_ck.csv",encoding="gbk")
 
@@ -75,6 +77,7 @@ file.close()
 y_train = y_train.values
 # print(y_train.shape[1])
 
+x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.2)
 
 #验证数据
 x_ck = data_ck_list.drop(["salary"], axis=1)
@@ -100,16 +103,30 @@ x_ck = x_ck.values
 #创建学习模型
 model = Sequential()
 
-model.add(Conv1D(64, 3, padding='same', input_shape=(None,y_train.shape[1], 903)))
+# input_length:输入序列的长度
+# input_dim: 就是数据的维度
+# output_dim: 词向量的维度
+#loss: 0.42399230333719756               accuracy: 0.8224951708678723 100 
+model.add(Embedding(input_dim = 1000, output_dim = 8, input_length=903))
+# model.add(GlobalMaxPool1D())
+# model.add(Conv1D(128, 5, activation='relu'))
+model.add(Flatten())
 
+#CNN 卷积神经网络 
+# x_train = x_train.reshape((x_train.shape[0],x_train.shape[1],1))
+# # print(x_train.shape)
+# model.add(Conv1D(100, 5, padding='valid', activation="relu", input_shape=(x_train.shape[1],1)))
+# model.add(Flatten())
+# model.add(Dropout(0.4))
+
+# RNN 循环神经网络
 # model.add(Embedding(903,32))
-# #RNN
 # model.add(LSTM(32))
 
 # model.add(Dense(512, input_dim=903, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
-#model.add(Dense(256, input_dim=903, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
+model.add(Dense(256, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
 # model.add(Dense(128, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
-#model.add(Dense(64, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
+model.add(Dense(64, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
 # model.add(Dense(32, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
 # model.add(Dense(y_train.shape[1]*2, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
 
@@ -122,54 +139,59 @@ model.add(Activation('softmax'))
 # ada = optimizers.Adagrad(lr=0.005, epsilon=1e-8)
 # ada = optimizers.Adamax(lr=0.005, epsilon=1e-8, beta_1=0.9, beta_2=0.999)
 
-#loss: 0.7141936179002323 		accuracy: 0.7062800257894734 10
-#loss: 0.46716969466706537 		accuracy: 0.7896587588559063 500
-#loss: 0.7795951458292053 		accuracy: 0.6785944234763381
-#loss: 0.6422989048142353 		accuracy: 0.7227229956744312 relu
-#loss: 0.5951487899216269 		accuracy: 0.7445891733291415
-#loss: 0.4680684206655904 		accuracy: 0.8117478082818963 500
-#loss: 0.3321162215648469 		accuracy: 0.8640422550534796 all 100
-#loss: 0.4578971673271144 		accuracy: 0.82719198014133 5
-ada = optimizers.Adam(lr=0.005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
 
-#loss: 0.81395600688244365 		accuracy: 0.675672329379594
+#loss: 0.048335879430386856 		accuracy: 0.9806170850154281 python 2048 10
+#loss: 0.04031918211255142 		accuracy: 0.9823382718773741 python 512 10
+#loss: 0.047787329152792594 		accuracy: 0.9808909100784625 python 512 10 无 Embedding
+#loss: 0.04719234061323431 		accuracy: 0.9851261361139098 python 512 100
+
+#loss: 0.07490006572916721          accuracy: 0.9759101818638884 all 2048 10 
+#loss: 0.028386146681590733 		accuracy: 0.9877186980202701 all 2048 100
+ada = optimizers.Adam(lr=0.005, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0, amsgrad=False)
+
+#loss: 0.08284054080844909               accuracy: 0.9748895210990844 all 2048 10 
 # ada = optimizers.Adamax(lr=0.005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0)
 
-# loss: 1.3253612228006908 		accuracy: 0.46983804696736625 10
-# loss: 0.8919344719082928 		accuracy: 0.6150017332064793 500
-# loss: 1.3256939558895233 		accuracy: 0.46983804696736625
+# loss: 1.3507972480963186                accuracy: 0.5086978649411515 all 2048 10 
 # ada = optimizers.SGD(lr=0.01, momentum=0.0, decay=0.0, nesterov=False)
 
-#loss: 0.7281321605148927 		accuracy: 0.710588876043054
+# loss: 0.16920969194946764               accuracy: 0.9512669263341215  all 2048 10 
 # ada = optimizers.Adagrad(lr=0.01, epsilon=None, decay=0.0)
 # ada = optimizers.Adagrad(lr=0.1, epsilon=None, decay=0.0)
 
-# loss: 1.0462341844448098 		accuracy: 0.5548511715205946 10
-# loss: 0.4888109677135841 		accuracy: 0.7862661583487024 500
-# loss: 1.217691098838981 		accuracy: 0.47647466719354237
-# # loss: 0.45390464728952284 		accuracy: 0.7896339951968584 500
+
+# loss: 0.1087048964805871                accuracy: 0.966727016299333 all 2048 10 
 # ada = optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=None, decay=0.0)
 
 
-#loss: 0.6615062530195074 		accuracy: 0.7109355655929662
+# loss: 0.0546744127769899                accuracy: 0.9801958445461728 all 2048 10 
+# loss: 0.04195473445235419               accuracy: 0.9857969636658466 all 2048 100
 # ada = optimizers.Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08, schedule_decay=0.004)
 
-# loss: 0.7522785709892728 		accuracy: 0.6857758405380868
+# loss: 0.08993382060727524               accuracy: 0.9710738629871115 all 2048 10 
 # ada = optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=None, decay=0.0)
 
 #模型
 model.compile(optimizer=ada, loss='categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(x_train, y_train, batch_size=32, epochs=5, shuffle=True)
+model.fit(x_train, y_train, batch_size=512, epochs=10, shuffle=True)
 
-score = model.evaluate(x_train, y_train, batch_size=32)
+score = model.evaluate(x_train, y_train, batch_size=512, verbose=0)
 
 print('loss:', score[0], '\t\taccuracy:', score[1])
 
-#测试结果
-# res = model.predict(np.array(x_ck))
+score2 = model.evaluate(x_test, y_test, batch_size=512, verbose=0)
 
-#四舍五入显示结果
-# print("res:", np.round(res))
+print('loss:', score2[0], '\t\taccuracy:', score2[1])
 
-# print("res:", res)
+# model.save(model_file)
+
+# tf.saved_model.save(model, "./checkpoint/")
+
+# #测试结果
+res = model.predict(np.array(x_ck))
+
+## 四舍五入显示结果
+print("res:", np.round(res))
+
+print("res:", res)

@@ -6,9 +6,10 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras import optimizers
 from sklearn.model_selection import train_test_split
 
-model_file = "/ck/test.h5"
+model_file = "./cp/test.h5"
+model_file_dir = "./cp/"
 
-data_list = pd.read_csv("../data/python_new.csv",encoding="gbk")
+data_list = pd.read_csv("../data/python_all_no0.csv",encoding="gbk")
 # data_list = pd.read_csv("../data/python_new.csv",encoding="gbk")
 # print(data_list.head())
 data_ck_list = pd.read_csv("../data/python_ck.csv",encoding="gbk")
@@ -60,7 +61,7 @@ for i, element in enumerate(job_type_data):
 
 #设置 x的训练集
 # print(x_train)
-x_train = x_train.values
+X = x_train.values
 # print(x_train)
 
 y_train = data_list[["salary"]]
@@ -74,10 +75,10 @@ file.close()
 # 提取one-hot 值
 # print(y_train.values)
 
-y_train = y_train.values
+Y = y_train.values
 # print(y_train.shape[1])
 
-x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.2)
+x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
 
 #验证数据
 x_ck = data_ck_list.drop(["salary"], axis=1)
@@ -108,8 +109,6 @@ model = Sequential()
 # output_dim: 词向量的维度
 #loss: 0.42399230333719756               accuracy: 0.8224951708678723 100 
 model.add(Embedding(input_dim = 1000, output_dim = 8, input_length=903))
-# model.add(GlobalMaxPool1D())
-# model.add(Conv1D(128, 5, activation='relu'))
 model.add(Flatten())
 
 #CNN 卷积神经网络 
@@ -125,8 +124,10 @@ model.add(Flatten())
 
 # model.add(Dense(512, input_dim=903, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
 model.add(Dense(256, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
+# model.add(Dropout(0.5))
 # model.add(Dense(128, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
 model.add(Dense(64, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
+# model.add(Dropout(0.5))
 # model.add(Dense(32, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
 # model.add(Dense(y_train.shape[1]*2, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
 
@@ -145,15 +146,21 @@ model.add(Activation('softmax'))
 #loss: 0.047787329152792594 		accuracy: 0.9808909100784625 python 512 10 无 Embedding
 #loss: 0.04719234061323431 		accuracy: 0.9851261361139098 python 512 100
 
-#loss: 0.07490006572916721          accuracy: 0.9759101818638884 all 2048 10 
-#loss: 0.028386146681590733 		accuracy: 0.9877186980202701 all 2048 100
-ada = optimizers.Adam(lr=0.005, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0, amsgrad=False)
+
+#loss: 0.24256765208281017      accuracy: 0.89419997 2048 1000
+#loss: 0.22263402974503915      accuracy: 0.90127784 2048 1000
+# ada = optimizers.Adam(lr=0.005, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0, amsgrad=False)
 
 #loss: 0.08284054080844909               accuracy: 0.9748895210990844 all 2048 10 
 # ada = optimizers.Adamax(lr=0.005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0)
 
 # loss: 1.3507972480963186                accuracy: 0.5086978649411515 all 2048 10 
-# ada = optimizers.SGD(lr=0.01, momentum=0.0, decay=0.0, nesterov=False)
+# 128 50
+# train:loss: 0.25072397446237404         accuracy: 0.8950181
+# test: loss: 0.29052080751428017       accuracy: 0.8872462
+# 96 100
+# loss: 0.22520023214305418         accuracy: 0.9002209
+ada = optimizers.SGD(lr=0.1, momentum=0.0, decay=0.0, nesterov=False)
 
 # loss: 0.16920969194946764               accuracy: 0.9512669263341215  all 2048 10 
 # ada = optimizers.Adagrad(lr=0.01, epsilon=None, decay=0.0)
@@ -168,25 +175,27 @@ ada = optimizers.Adam(lr=0.005, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0
 # loss: 0.04195473445235419               accuracy: 0.9857969636658466 all 2048 100
 # ada = optimizers.Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08, schedule_decay=0.004)
 
-# loss: 0.08993382060727524               accuracy: 0.9710738629871115 all 2048 10 
+# loss: 0.08993382060727524               accuracy: 0.9710738629871115 all 2048 10 1024
 # ada = optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=None, decay=0.0)
 
 #模型
 model.compile(optimizer=ada, loss='categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(x_train, y_train, batch_size=512, epochs=10, shuffle=True)
+model.fit(X, Y, batch_size=96, epochs=100, shuffle=True)
 
-score = model.evaluate(x_train, y_train, batch_size=512, verbose=0)
+score = model.evaluate(X, Y, batch_size=96, verbose=0)
 
 print('loss:', score[0], '\t\taccuracy:', score[1])
 
-score2 = model.evaluate(x_test, y_test, batch_size=512, verbose=0)
+# score2 = model.evaluate(x_test, y_test, batch_size=2048, verbose=0)
 
-print('loss:', score2[0], '\t\taccuracy:', score2[1])
+# print('loss:', score2[0], '\t\taccuracy:', score2[1])
 
 # model.save(model_file)
 
-# #测试结果
+
+
+# # #测试结果
 res = model.predict(np.array(x_ck))
 
 ## 四舍五入显示结果

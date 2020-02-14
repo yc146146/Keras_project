@@ -80,9 +80,17 @@ x_ck = x_ck.values
 # tanh relu
 # 创建学习模型
 
-# train_inputs = tf.cast(tf.convert_to_tensor(x_train), tf.float32)
+train_size, num_features = x_train.shape
+learning_rate = 0.001
+training_epochs = 10
+num_labels = y_train.shape[1]
+batch_size = 256
 
-train_inputs = x_train.astype("float32")
+
+X = tf.placeholder("float", shape=[None, num_features])
+Y = tf.placeholder("float", shape=[None, num_labels])
+
+train_inputs = tf.cast(tf.convert_to_tensor(X), tf.float32)
 
 # Embedding lookup table currently only implemented in CPU with
 # with tf.name_scope("embeddings"):
@@ -95,23 +103,30 @@ train_inputs = x_train.astype("float32")
 # embed = tf.layers.dense(inputs=embed, units=8,
 #                         activation=tf.nn.leaky_relu, kernel_initializer=tf.random_normal_initializer(
 #                             mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name='l0')
-embed = tf.layers.dense(inputs=train_inputs, units=256,
-                        activation=tf.nn.relu, kernel_initializer=tf.random_normal_initializer(
-                            mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name='l1')
-embed = tf.layers.dense(inputs=embed, units=64,
-                        activation=tf.nn.relu, kernel_initializer=tf.random_normal_initializer(
-                            mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name='l2')
-embed = tf.layers.dense(inputs=embed, units=6,
-                        activation=tf.nn.softmax, kernel_initializer=tf.random_normal_initializer(
-                            mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name='l3')
+# embed = tf.layers.dense(inputs=train_inputs, units=256,
+#                         activation=tf.nn.relu, kernel_initializer=tf.random_normal_initializer(
+#                             mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name='l1')
+# embed = tf.layers.dense(inputs=embed, units=64,
+#                         activation=tf.nn.relu, kernel_initializer=tf.random_normal_initializer(
+#                             mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name='l2')
+# embed = tf.layers.dense(inputs=embed, units=6,
+#                         activation=tf.nn.softmax, kernel_initializer=tf.random_normal_initializer(
+#                             mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name='l3')
+
+layer0 = tf.layers.dense(inputs=X, units=256, activation=tf.nn.relu, kernel_initializer=tf.random_normal_initializer(
+    mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name="l1")
+layer1 = tf.layers.dense(inputs=layer0, units=64, activation=tf.nn.relu, kernel_initializer=tf.random_normal_initializer(
+    mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name="l2")
+embed = tf.layers.dense(inputs=layer1, units=num_labels, activation=tf.nn.softmax, kernel_initializer=tf.random_normal_initializer(
+    mean=0, stddev=0.1), bias_initializer=tf.constant_initializer(0), name="l3")
 
 
-loss = -tf.reduce_mean(y_train * tf.log(embed))
+loss = -tf.reduce_mean(Y * tf.log(embed))
 
 
 predict = tf.argmax(embed, 1, name='predict')
 
-correct_prediction = tf.equal(tf.argmax(embed, 1), tf.argmax(y_train, 1))
+correct_prediction = tf.equal(tf.argmax(embed, 1), tf.argmax(Y, 1))
 
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
@@ -121,15 +136,21 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
 opt = tf.train.AdamOptimizer(0.005).minimize(loss)
 
-sess = tf.Session()
-sess.run(tf.global_variables_initializer())
+# sess = tf.Session()
+# sess.run(tf.global_variables_initializer())
 
-tf.train.Saver().restore(sess, "./checkpoint/model.ckpt")
+# # tf.train.Saver().restore(sess, "./checkpoint/model.ckpt")
 
-for i in range(50):
-    print(sess.run([opt, loss]))
+# for i in range(50):
+#     print(sess.run([opt, loss],feed_dict={
+#                        X: x_train, Y: y_train}))
 
-print(sess.run([accuracy]))
+# print(sess.run([accuracy],feed_dict={
+#                        X: x_train, Y: y_train}))
+
+# print("predict", sess.run([predict],feed_dict={
+#                        X: x_ck}))
+
 
 # result = sess.run(embed)
 # hotresult = np.argmax(result, axis=1)
@@ -142,32 +163,34 @@ print(sess.run([accuracy]))
 
 # print(n/hotresult.shape[0])
 
-# train_size, num_features = x_train.shape
-# learning_rate = 0.0001
-# training_epochs = 1000
-# num_labels = y_train.shape[1]
-# batch_size = 512
+#================================================================
+train_size, num_features = x_train.shape
+learning_rate = 0.005
+training_epochs = 1000
+num_labels = y_train.shape[1]
+batch_size = 512
 
-# with tf.Session() as sess:
-#     tf.global_variables_initializer().run()
-#     tf.train.Saver().restore(sess, "./checkpoint/model.ckpt")
-#     # training_epochs * train_size // batch_size
+with tf.Session() as sess:
+    tf.global_variables_initializer().run()
+    # tf.train.Saver().restore(sess, "./checkpoint/model.ckpt")
+    # training_epochs * train_size // batch_size
 
-#     for step in range(50):
+    for step in range(150):
 
-#         offset = (step * batch_size) % train_size
+        # offset = (step * batch_size) % train_size
 
-#         batch_xs = x_train[offset:(offset + batch_size), :]
-#         batch_labels = y_train[offset:(offset + batch_size)]
+        # batch_xs = x_train[offset:(offset + batch_size), :]
+        # batch_labels = y_train[offset:(offset + batch_size)]
 
-#         err = sess.run([loss, opt])
-#         print(step, err)
+        err = sess.run([loss, opt], feed_dict={
+                       X: x_train, Y: y_train})
+        print(step, err)
 
-    # print("accuracy", accuracy.eval(feed_dict={X: x_train, Y: y_train}))
-    # print("loss", loss.eval(feed_dict={X: x_train, Y: y_train}))
-    # print("predict", predict.eval(feed_dict={X: x_ck}))
+    print("accuracy", accuracy.eval(feed_dict={X: x_train, Y: y_train}))
+    print("loss", loss.eval(feed_dict={X: x_train, Y: y_train}))
+    print("predict", predict.eval(feed_dict={X: x_ck}))
     
     
 
 
-tf.train.Saver().save(sess, "./checkpoint/model.ckpt")
+    tf.train.Saver().save(sess, "./checkpoint/model.ckpt")

@@ -12,10 +12,10 @@ from sklearn.model_selection import train_test_split
 
 model_file = "./cp/model.h5"
 
-data_list = pd.read_csv("../data/python_test.csv",encoding="gbk")
+data_list = pd.read_csv("../data/all_01_info.csv",encoding="gbk")
 # data_list = pd.read_csv("../data/python_new.csv",encoding="gbk")
 # print(data_list.head())
-data_ck_list = pd.read_csv("../data/python_ck_test.csv",encoding="gbk")
+data_ck_list = pd.read_csv("../data/python_ck_info.csv",encoding="gbk")
 
 x_train = data_list.drop(["salary"], axis=1)
 # print(data_list.shape)
@@ -53,8 +53,8 @@ for i, element in enumerate(job_type_data):
     file.write("数字:"+str(i)+"名称:"+element+"\n")
 
 # 归一化
-x_train["education"] = (x_train["education"]-x_train["education"].min())/(x_train["education"].max()-x_train["education"].min())
-x_train["address"] = (x_train["address"]-x_train["address"].min())/(x_train["address"].max()-x_train["address"].min())
+# x_train["education"] = (x_train["education"]-x_train["education"].min())/(x_train["education"].max()-x_train["education"].min())
+# x_train["address"] = (x_train["address"]-x_train["address"].min())/(x_train["address"].max()-x_train["address"].min())
 # x_train["job_type"] = (x_train["job_type"]-x_train["job_type"].min())/(x_train["job_type"].max()-x_train["job_type"].min())
 
 
@@ -111,19 +111,19 @@ Y = y_train.values
 # y_test = Y[-1000:,:]
 
 #测试集
-x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=7)
+# x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=7)
 # x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
 
 
 #打乱
-np.random.seed(200)
-np.random.shuffle(x_train)
-np.random.seed(200)
-np.random.shuffle(y_train)
-np.random.seed(200)
-np.random.shuffle(x_test)
-np.random.seed(200)
-np.random.shuffle(y_test)
+# np.random.seed(200)
+# np.random.shuffle(x_train)
+# np.random.seed(200)
+# np.random.shuffle(y_train)
+# np.random.seed(200)
+# np.random.shuffle(x_test)
+# np.random.seed(200)
+# np.random.shuffle(y_test)
 
 #验证数据
 x_ck = data_ck_list.drop(["salary"], axis=1)
@@ -169,8 +169,21 @@ else:
     # input_dim: 就是数据的维度
     # output_dim: 词向量的维度
     #loss: 0.42399230333719756               accuracy: 0.8224951708678723 100 
-    # model.add(Embedding(input_dim = 1000, output_dim = 8, input_length=803))
+    # model.add(Embedding(input_dim = 1000, output_dim = 8, input_length=903))
+    # model.add(GlobalMaxPool1D())
+    # model.add(Conv1D(128, 5, activation='relu'))
     # model.add(Flatten())
+
+    #CNN 卷积神经网络 
+    # x_train = x_train.reshape((x_train.shape[0],x_train.shape[1],1))
+    # # print(x_train.shape)
+    # model.add(Conv1D(100, 5, padding='valid', activation="relu", input_shape=(x_train.shape[1],1)))
+    # model.add(Flatten())
+    # model.add(Dropout(0.4))
+
+    # RNN 循环神经网络
+    # model.add(Embedding(903,32))
+    # model.add(LSTM(32))
 
     #浮动低 16 Dropout
     #train loss: 0.5968585370459177 		 train accuracy: 0.7853597402572632
@@ -180,24 +193,24 @@ else:
     #train loss: 0.7366329540683235 		 train accuracy: 0.733748197555542
     #loss: 0.8678707594577398 		accuracy: 0.6771607995033264
 
+    # model.add(Dense(1024, activation="relu", kernel_initializer='random_uniform', bias_initializer='zeros' ))
     # model.add(Dense(512, input_dim=903, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
-    model.add(Dense(1024, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform', name="Dense_11"))
-    model.add(Dense(256, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform', name="Dense_1"))
+    model.add(Dense(256, activation="relu", kernel_initializer='random_uniform', bias_initializer='zeros', name="Dense_1"))
     # model.add(Dropout(0.5))
-    model.add(Dense(128, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
+    # model.add(Dense(y_train.shape[1]*16, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
     # model.add(Dropout(0.5))
 
     # test loss: 0.5129183614737426 		accuracy: 0.8551640510559082 32
     # loss: 0.4369770986341474 		accuracy: 0.9198055863380432 64
     # loss: 0.47564170548142376 		accuracy: 0.9095990061759949 128
     # loss: 0.5278801669942652 		accuracy: 0.8882138729095459 256
-    model.add(Dense(64, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform', name="Dense_2"))
+    model.add(Dense(64, activation="relu", kernel_initializer='random_uniform', bias_initializer='zeros', name="Dense_2"))
     # model.add(Dropout(0.5))
-    # model.add(Dense(16, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
+    model.add(Dense(32, activation="relu", kernel_initializer='random_uniform', bias_initializer='zeros' ))
     # model.add(Dropout(0.5))
     # # model.add(Dense(y_train.shape[1]*2, activation="relu", kernel_initializer='random_uniform', bias_initializer='random_uniform' ))
 
-    model.add(Dense(y_train.shape[1], kernel_initializer='random_uniform', bias_initializer='random_uniform', name="Dense_3"))
+    model.add(Dense(y_train.shape[1], kernel_initializer='random_uniform', bias_initializer='zeros', name="Dense_3"))
 
     # model.add(Dense(y_train.shape[1],input_dim=903, kernel_initializer='random_uniform', bias_initializer='random_uniform'))
     model.add(Activation('softmax'))
@@ -215,7 +228,7 @@ else:
     #loss: 0.07490006572916721          accuracy: 0.9759101818638884 all 2048 10 
     #loss: 0.028386146681590733 		accuracy: 0.9877186980202701 all 2048 100
     #train loss: 0.36305907371137425 		 train accuracy: 0.8593211770057678 1000
-    ada = optimizers.Adam(lr=0.005, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0, amsgrad=False)
+    ada = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0, amsgrad=False)
 
     #loss: 0.08284054080844909               accuracy: 0.9748895210990844 all 2048 10 
     # ada = optimizers.Adamax(lr=0.005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0)
@@ -252,7 +265,7 @@ else:
 #loss: 0.5037715416761062 		accuracy: 0.8678364753723145
 #loss: 8.172873907812845 		accuracy: 0.7124386429786682
 # model.fit(x_train, y_train, batch_size=512, epochs=10, shuffle=True, callbacks=callback_lists)
-model.fit(X, Y, batch_size=512, epochs=20, shuffle=False)
+model.fit(X, Y, batch_size=512, epochs=100, shuffle=True)
 
 score = model.evaluate(X, Y, verbose=0, batch_size=512)
 
@@ -280,7 +293,7 @@ model2 = load_model(model_file)
 
 # model2.compile(optimizer=ada, loss='categorical_crossentropy', metrics=['accuracy'])
 
-score2 = model2.evaluate(X, Y, verbose=0, batch_size=512)
+score2 = model2.evaluate(X, Y, verbose=1, batch_size=512)
 
 print('loss:', score2[0], '\t\taccuracy:', score2[1])
 
